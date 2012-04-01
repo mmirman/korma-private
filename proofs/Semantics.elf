@@ -24,8 +24,8 @@ step/switch-simp  : step (switch LF RF O) (switch LF RF O')
                  <- not-value O
                  <- step O O'.
 
-step/switch-left  : step (switch LF _ (left L)) (@s LF L).
+step/switch-left  : step (switch LF _ (left L _)) (@s LF L).
 
-step/switch-right : step (switch _ RF (right R)) (@s RF R).
+step/switch-right : step (switch _ RF (right _ R)) (@s RF R).
 
 %worlds (tm-b) (step _ _).

@@ -13,13 +13,11 @@ step-eq/eq : step-eq A A.
 
 logic-less : of E T -> type. %name logic-less LL.
 
-logic-less/unsafe : logic-less (of/unsafe Tms).
-
 logic-less/app : logic-less (of/@s OfFe OfIe)
               <- logic-less OfIe
               <- logic-less OfFe.
 
-logic-less/lam : logic-less (of/lam F _ _) 
+logic-less/lam : logic-less (of/lam _ F _ _ _) 
    <- {x}{of_x} logic-less of_x -> logic-less (F x of_x).
 
 logic-less/empty : logic-less of/empty.
@@ -57,44 +55,6 @@ ll-new : of-eq Of Of' -> logic-less Of -> logic-less Of' -> type.
 %mode ll-new +A +B -C.
 %worlds () (ll-new _ _ _).
 %total {A B} (ll-new A B _).
-
-unsafe-free : tm -> type.
-
-unsafe-free/lam 
-   : unsafe-free (lam F _)
-  <- {x} unsafe-free x -> unsafe-free (F x).
-unsafe-free/empty 
-   : unsafe-free empty.
-unsafe-free/obj 
-   : unsafe-free (obj L R) 
-  <- unsafe-free R
-  <- unsafe-free L.
-unsafe-free/getLeft 
-   : unsafe-free (getLeft I)
-  <- unsafe-free I.
-unsafe-free/getRight 
-   : unsafe-free (getRight I)
-  <- unsafe-free I.
-unsafe-free/left
-   : unsafe-free (left I)
-  <- unsafe-free I.
-unsafe-free/right
-   : unsafe-free (right I)
-  <- unsafe-free I.
-unsafe-free/switch
-   : unsafe-free (switch L R I)
-  <- unsafe-free I
-  <- unsafe-free R
-  <- unsafe-free L.
-unsafe-free/logic-var 
-   : unsafe-free logic-var.
-unsafe-free/@s
-   : unsafe-free (@s F V)
-  <- unsafe-free V
-  <- unsafe-free F.
-
-%block unsafe-free-b : block {x}{_:unsafe-free x}.
-
 
 
 not-stuck : tm -> type.

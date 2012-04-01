@@ -2,20 +2,18 @@ tm : type. %name tm E.
 
 lam : (tm -> tm) -> tp -> tm.
 
-unsafe : tm.
-
 empty : tm.
 obj : tm -> tm -> tm.
 getLeft : tm -> tm.
 getRight : tm -> tm.
-left : tm -> tm.
-right : tm -> tm.
+left : tm -> tp -> tm.
+right : tp -> tm -> tm.
 % switch should be GLB not LUB, but right now just making them equal seems good enough.
 switch : tm
       -> tm
       -> tm
       -> tm.
-logic-var : tm.
+logic-var : tp -> tm.
 @s : tm -> tm -> tm.
 
 %block tm-b : block {x : tm}.
@@ -25,8 +23,8 @@ logic-var : tm.
 value : tm -> type.
 %mode value +A.
 value/lam : value (lam _ _).
-value/left : value (left _).
-value/right : value (right _).
+value/left : value (left _ _).
+value/right : value (right _ _).
 value/empty : value empty.
 value/obj : value (obj A B).
 %worlds (tm-b) (value _).
@@ -38,8 +36,7 @@ not-value/switch : not-value (switch _ _ _).
 not-value/getLeft : not-value (getLeft _).
 not-value/getRight : not-value (getRight _).
 not-value/@s : not-value (@s _ _).
-not-value/logic-var : not-value logic-var.
-not-value/unsafe : not-value unsafe.
+not-value/logic-var : not-value (logic-var _).
 %worlds (tm-b) (not-value _).
 
 

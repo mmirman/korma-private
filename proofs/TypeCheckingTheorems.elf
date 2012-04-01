@@ -10,8 +10,10 @@ of-safe : of E T -> tp-mode-safe T M -> type.
  <- of-safe OfProd (tp-mode-safe/prod _ TmsL TmsR).
 - : of-safe (of/getRight OfProd) TmsR
  <- of-safe OfProd (tp-mode-safe/prod _ TmsL TmsR).
-- : of-safe (of/left Ub TmsA TmsB _) (tp-mode-safe/sum Ub TmsA TmsB).
-- : of-safe (of/right Ub TmsA TmsB _) (tp-mode-safe/sum Ub TmsA TmsB).
+- : of-safe (of/left Lub TmsA TmsB _) (tp-mode-safe/sum Ub TmsA TmsB)
+ <- lub-2-ub Lub Ub.
+- : of-safe (of/right Lub TmsA TmsB _) (tp-mode-safe/sum Ub TmsA TmsB)
+ <- lub-2-ub Lub Ub.
 
 - : of-safe (of/switch TmA TmB OfL OfR OfO) TmsC
  <- of-safe OfL (tp-mode-safe/~> _ TmsC).
@@ -21,9 +23,8 @@ of-safe : of E T -> tp-mode-safe T M -> type.
 - : of-safe (of/@s OfEf OfEv) R
  <- of-safe OfEf (tp-mode-safe/~> _ R).
 
-- : of-safe (of/lam FoOf TmsA TmsB : of (lam F _) _) (tp-mode-safe/~> TmsA TmsB).
+- : of-safe (of/lam _ FoOf _ TmsA TmsB : of (lam F _) _) (tp-mode-safe/~> TmsA TmsB).
 
 - : of-safe (of/subsump TmsT _ _) TmsT.
-- : of-safe (of/unsafe Tms) Tms.
 %worlds (tp-mode-always-safe) (of-safe _ _).
 %total {A} (of-safe A _).

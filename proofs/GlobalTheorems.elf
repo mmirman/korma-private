@@ -14,7 +14,7 @@ pres : step E E' -> of E T -> of E' T' -> T' =< T -> type.
 
 pres/lam : pres 
             step/lam
-	    (of/@s (of/lam Foo_OfF TmsV TmsO) (OfV : of V _))
+	    (of/@s (of/lam _ Foo_OfF _ TmsV TmsO) (OfV : of V _))
 	    (Foo_OfF V OfV)
 	    Eq
          <- =<-eq _ Eq.
@@ -109,20 +109,7 @@ pres/switch-right : pres
 
 %worlds () (pres _ _ _ _).
 
-pres-wm : pres Step OfE OFV _ -> well-moded OfE -> well-moded OfV -> type.
-%mode pres-wm +A +B -C.
-%worlds () (pres-wm _ _ _).
-%trustme %total {A} (pres-wm A _ _).
 
-wm-2-unsafe-free : well-moded (OfE : of E _) -> unsafe-free E -> type.
-%mode wm-2-unsafe-free +B -C.
-%worlds () (wm-2-unsafe-free _ _).
-%trustme %total {A} (wm-2-unsafe-free A _).
-
-unsafe-free-2-absurd : unsafe-free unsafe -> absurd -> type.
-%mode unsafe-free-2-absurd +B -C.
-%worlds () (unsafe-free-2-absurd _ _).
-%total {A} (unsafe-free-2-absurd A _).
 %{ 
 we will need a lemma to get terminates working, 
 but for now, we know it works 
@@ -138,12 +125,6 @@ We also never match on the outputs except where it obviously works, so output co
 %covers pres +A +B -C -D.
 %trustme %total {A B} (pres A B _ _).
 %freeze pres.
-
-pres-wm : pres _ OfA OfB _ -> well-moded OfA -> well-moded OfB -> type.
-%mode pres-wm +A +B -C.
-%worlds () (pres-wm _ _ _).
-%trustme %total {A B} (pres-wm A B _).
-
 
 get-pres : {Step: step E E' } {Of : of E T} pres Step Of Of' Sub -> type.
 %mode get-pres +A +B -C.
@@ -271,7 +252,13 @@ lam/forms : step (@s (lam F _) V) R -> tm-eq R (F V) -> type.
 - : lam/forms step/lam tm-eq/eq.
 %mode lam/forms +Step -Eq.
 %worlds () (lam/forms _ _).
-%total {A} (lam/forms A _). 
+%total {A} (lam/forms A _).
+
+lam-or-not :  pres (Step : step (@s (lam F _) V) E) _ _ _ -> step-eq Step step/lam -> type.
+%mode lam-or-not +A -B.
+%worlds () (lam-or-not _ _).
+%trustme %total {A} (lam-or-not A _).
+
 
 %{
  we need to be able to say that for "pres Step (of/@s (of/lam OfF ..) OfV) OfR" then 
@@ -295,6 +282,7 @@ resolving : used-as-neg Result OfX OfE
 	 -> logic-less OfX
 	 -> type.
 %mode resolving +UanXE +Pres +TmsEp +WM_E +LLV -LLX.
+
 res/unsafe 
   : resolving 
      _ Pres _ WmE logic-less/unsafe LL_X
@@ -427,13 +415,40 @@ res/switch-right
 res/@s/app-r/lam/-
  : resolving 
     (used-as-neg/app-r UanX_V TmsV-)
-    Step
+    Pres
     TmsB+
     (wm/@s (wm/lam/- Foo_WmF Foo_UanF) (WmV : well-moded OfV))
     LL_R
     LL_X
  <- uan-2-ll (Foo_UanF V OfV) LL_R LL_V
  <- uan-2-ll UanX_V LL_V LL_X.
+
+%{
+
+{E1:tm} {T1:tp} {E2:tm -> tm} {T2:tp} {E3:tm} {T3:tp} {Of1:of E1 T1}
+   {Of2:{e:tm} of e T2 -> of (E2 e) T3} {TpM1:tp-mode-safe T2 neg}
+   {TpM2:tp-mode-safe T3 pos} {Of3:of E3 T2} {E4:tm} {E5:tm} {E6:tm} {T4:tp}
+   {Step1:step (@s (lam ([e:tm] E2 e) T2) E3) (switch E4 E5 E6)} {T5:tp} {T6:tp}
+   {TpM3:tp-mode T5 neg} {TpM4:tp-mode T6 neg} {Of4:of E4 (T5 ~> T4)}
+   {Of5:of E5 (T6 ~> T4)} {Of6:of E6 (sum T5 T6 neg)} {X1:T4 =< T3}
+   {X2:used-as-neg neg Of1 Of3} {TpM5:tp-mode T2 neg}
+   {X3:pres Step1
+          (of/@s (of/lam ([x:tm] [of1:of x T2] Of2 x of1) TpM1 TpM2) Of3)
+          (of/switch TpM3 TpM4 Of4 Of5 Of6) X1}
+   {TpM6:tp-mode-safe T3 pos} {E7:tm} {T7:tp} {Of7:of E7 T7}
+   {X4:{x:tm} {of_x:of x T2} well-moded of_x -> well-moded (Of2 x of_x)}
+   {X5:{x:tm} {of_x:of x T2} used-as-neg pos of_x (Of2 x of_x)}
+   {X6:well-moded Of7} {LL1:logic-less Of4} {LL2:logic-less Of5}
+   {LL3:logic-less Of6} {LL4:logic-less Of1}
+   |- resolving (used-as-neg/app-r X2 TpM5) X3 TpM6
+         (wm/@s
+             (wm/lam/- ([x:tm] [of_x:of x T2] [x1:well-moded of_x] X4 x of_x x1)
+                 ([x:tm] [of_x:of x T2] X5 x of_x))
+             X6)
+         (logic-less/switch LL1 LL2 LL3) LL4.
+
+}%
+
 
 res/@s/app-r/lam/+
  : resolving 
@@ -449,5 +464,5 @@ res/@s/app-r/lam/+
 
 %worlds () (resolving _ _ _ _ _ _).
 %terminates {O A B C D} (resolving O A B C D _).
-%covers resolving +O +A +B +C +D -E.
+% %covers resolving +O +A +B +C +D -E.
 % %total {O A B C D} (resolving O A D C B _).
